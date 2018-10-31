@@ -1,29 +1,33 @@
 {
   "name": "jshape",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Shape any kind of value in JavaScript",
   "author": "Jonathan Neal <jonathantneal@hotmail.com>",
   "license": "CC0-1.0",
   "repository": "jonathantneal/jshape",
   "homepage": "https://github.com/jonathantneal/jshape#readme",
   "bugs": "https://github.com/jonathantneal/jshape/issues",
-  "main": "index.cjs.js",
-  "module": "index.es.mjs",
+  "main": "index.js",
+  "module": "index.mjs",
   "files": [
-    "browser.js",
-    "index.cjs.js",
-    "index.cjs.js.map",
-    "index.es.mjs",
-    "index.es.mjs.map"
+    "index.js",
+    "index.js.map",
+    "index.mjs",
+    "index.mjs.map",
+    "jshape.js",
+    "jshape.js.map",
+    "jshape.min.js"
   ],
   "scripts": {
     "build": "npm run build:browser && npm run build:node",
-    "build:browser": "rollup -c .rollup.browser.js --silent",
+    "build:browser": "npm run build:browser:dist && npm run build:browser:min",
+    "build:browser:dist": "cross-env NODE_ENV=browser rollup -c .rollup.js --silent",
+    "build:browser:min": "cross-env NODE_ENV=browser:min rollup -c .rollup.js --silent",
     "build:node": "rollup -c .rollup.js --silent",
     "prepublishOnly": "npm run build && npm run test",
     "pretest": "npm run build:node",
     "test": "npm run test:js && npm run test:tape",
-    "test:js": "eslint index.js --cache --ignore-path .gitignore --quiet",
+    "test:js": "eslint src/*.js --cache --ignore-path .gitignore --quiet",
     "test:tape": "node .tape"
   },
   "engines": {
@@ -33,6 +37,7 @@
     "@babel/core": "^7.1.2",
     "@babel/preset-env": "^7.1.0",
     "babel-eslint": "^10.0.1",
+    "cross-env": "^5.2.0",
     "eslint": "^5.8.0",
     "eslint-config-dev": "^2.0.0",
     "pre-commit": "^1.2.2",
@@ -42,7 +47,15 @@
   },
   "eslintConfig": {
     "extends": "dev",
-    "parser": "babel-eslint"
+    "parser": "babel-eslint",
+    "rules": {
+      "eqeqeq": [
+        0
+      ],
+      "no-eq-null": [
+        0
+      ]
+    }
   },
   "keywords": [
     "js",

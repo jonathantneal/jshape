@@ -20,7 +20,7 @@ asShape(
 ); // returns { name: 'Amelia', age: 5 }
 ```
 
-[jshape] is 616 bytes when minified and gzipped.
+[jshape] is 610 bytes when minified and gzipped.
 
 ## Usage
 
@@ -61,12 +61,18 @@ asShape(example, {
 ```
 
 [jshape] runs in all Node environements and browsers including Internet
-Explorer 9+.
+Explorer 9+ without polyfills.
 
 Test [jshape] in the browser:
 
 ```html
-<script src="https://unpkg.com/jshape/browser.js"></script>
+<script src="https://unpkg.com/jshape/jshape.js"></script>
+```
+
+A minified version is also available:
+
+```html
+<script src="https://unpkg.com/jshape/jshape.min.js"></script>
 ```
 
 ## Shapers
