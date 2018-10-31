@@ -6,12 +6,12 @@
  * @returns {*}
  */
 
-export const asShape = (value, shape, source) => {
-	const isOptionalShape = shape instanceof Optional;
-	const trueShape = isOptionalShape ? shape.shape : shape;
-	const isExplicitShape = typeof trueShape === 'function' || trueShape === undefined;
-	const Shape = isExplicitShape ? trueShape : Object(trueShape).constructor;
-	const shouldReturnValue = Shape === undefined || isOptionalShape && (value === null || value === undefined);
+export const asShape = (value, rawshape, source) => {
+	const isOptionalShape = rawshape instanceof Optional;
+	const shape = isOptionalShape ? rawshape.shape : rawshape;
+	const isExplicitShape = shape == null || Object(shape).constructor === Function;
+	const Shape = isExplicitShape ? shape : Object(shape).constructor;
+	const shouldReturnValue = Shape == null || isOptionalShape && value == null;
 
 	return shouldReturnValue
 		? value
@@ -22,7 +22,7 @@ export const asShape = (value, shape, source) => {
 			: {}
 		: asObjectShape(
 			value,
-			Object(trueShape),
+			Object(shape),
 			source
 		)
 	: Shape === Array
@@ -30,7 +30,7 @@ export const asShape = (value, shape, source) => {
 			? asArray(value)
 		: asArrayShape(
 			value,
-			Object(trueShape),
+			Object(shape),
 			source
 		)
 	: Shape === Boolean
@@ -40,7 +40,7 @@ export const asShape = (value, shape, source) => {
 	: Shape === Number
 		? asNumber(value)
 	: Shape === Hashmap
-		? asHashmapShape(value, trueShape, source)
+		? asHashmapShape(value, shape, source)
 	: new Shape(value);
 };
 
@@ -50,20 +50,19 @@ export const asShape = (value, shape, source) => {
  * @returns {Array}
  */
 
-export const asArray = value => Object(value).constructor === Array
+export const asArray = value => value == null
+	? []
+: value.constructor === Array
 	? value
-: value === null || value === undefined || value === Object(value)
+: value === Object(value)
 	? Array.prototype.slice.call(
-		Object.assign(
-			{
-				length: 'length' in Object(value)
+		Object.create(value, {
+			length: {
+				value: 'length' in value
 					? value.length
-				: Object.keys(
-					Object(value)
-				).length
-			},
-			value
-		)
+				: Object.keys(value).length
+			}
+		})
 	)
 : [value];
 
@@ -76,22 +75,20 @@ export const asArray = value => Object(value).constructor === Array
  */
 
 const asArrayShape = (values, shapes, source) => Array.prototype.reduce.call(
-	asArray(values === undefined ? shapes : values),
+	values == null ? [] : asArray(values),
 	(result, item, index) => {
 		const shape = shapes[index] || shapes[shapes.length - 1];
 
 		result[index] = asShape(
 			// shape the available key or use a primative fallback
-			index in Object(values) || shape === Object(shape)
-				? Object(values)[index]
-			: shape,
+			index in Object(values) || shape === Object(shape) ? Object(values)[index] : shape,
 			shape,
 			result[index]
 		);
 
 		return result;
 	},
-	asArray(source === undefined ? values : source)
+	asArray(source == null ? values : source)
 );
 
 /**
@@ -122,16 +119,14 @@ const asObjectShape = (values, shapes, source) => Object.keys(shapes).reduce(
 	(result, key) => {
 		result[key] = asShape(
 			// shape the available key or use a primative fallback
-			key in Object(values) || shapes[key] === Object(shapes[key])
-				? Object(values)[key]
-			: shapes[key],
+			key in Object(values) || shapes[key] === Object(shapes[key]) ? Object(values)[key] : shapes[key],
 			shapes[key],
 			result[key]
 		);
 
 		return result
 	},
-	Object(source === undefined ? values : source)
+	Object(source == null ? values : source)
 );
 
 /**
@@ -140,9 +135,7 @@ const asObjectShape = (values, shapes, source) => Object.keys(shapes).reduce(
  * @returns {String}
  */
 
-export const asString = value => value === undefined || value === null
-	? ''
-: String(value);
+export const asString = value => value == null ? '' : String(value);
 
 /**
  * Returns a hashmap shape for inner element shaping.

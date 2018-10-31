@@ -1,6 +1,6 @@
 node_modules
-browser.js
-index.*.*
+/index.*
+/jshape.*
 package-lock.json
 *.log*
 *.result.css
